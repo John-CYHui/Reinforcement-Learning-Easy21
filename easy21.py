@@ -1,5 +1,7 @@
+#%%
 import numpy as np
-    
+from tqdm import tqdm
+
 class environment():
     class State():
         def __init__(self) -> None:
@@ -23,7 +25,7 @@ class environment():
         self.state.is_terminal  = False
 
     def draw(self, black_only = False):
-        card_value = np.random.randint(low=1,high=10)
+        card_value = np.random.randint(low=1,high=11)
         
         if black_only == True:
             card_color = 1
@@ -109,7 +111,7 @@ class Agent:
         self.state_action_count_lookup_table = np.zeros((len(self.state_space),len(self.action_space)))
 
     def get_epsilon(self, observe_state):
-        N_0 = 100
+        N_0 = 200
         N_s = self.state_count_dict[observe_state]
         epsilon = N_0 / (N_0 + N_s)
         # Update count
@@ -121,19 +123,20 @@ class Agent:
         i = self.state_to_idx[observe_state]
         # Find the row in Q value table corresponding to state S_t 
         q_s_a = self.action_value_lookup_table[i,:]
+        print('q_value:', q_s_a)
         # Find the greedy idx that gives maximum Q value
         j = np.argmax(q_s_a)
         # Map greedy idx back to greedy action
         greedy_action = self.idx_to_action[j]
         return greedy_action
 
-    def eps_soft_policy(self, env):
+    def eps_soft_policy(self, observe_state):
         '''Follow epsilon-soft policy, given a state from env, return an action'''
-        observe_state = (env.state.agent_sum, env.state.dealer_first_card_value)
         # greedy action
         greedy_action = self.greedy_action(observe_state)
         # epsilon scheduling
         epsilon = self.get_epsilon(observe_state)
+        self.epsilon = epsilon
         # return a epsilon greedy action
         eps_greedy_action = np.random.choice([greedy_action, np.random.choice(self.action_space)], p = [1-epsilon, epsilon])
         return eps_greedy_action
@@ -143,15 +146,16 @@ def generate_episode(env, agent):
     env.reset()
     state_ls = []; action_ls = []; reward_ls = []
     while env.state.is_terminal != True:
-        # Follow policy pi
-        action = agent.eps_soft_policy(env)
+        # observable state
         observe_state = (env.state.agent_sum, env.state.dealer_first_card_value)
-        
+        # Follow policy pi
+        action = agent.eps_soft_policy(observe_state)
+    
         state_ls.append(observe_state)
         action_ls.append(action)
         env.state, reward = env.step(env.state, action)
         reward_ls.append(reward)
-        #print(env.state.agent_sum, env.state.dealer_first_card_value, env.state.is_terminal, reward)
+        #print(env.state.agent_sum, env.state.dealer_sum, env.state.is_terminal, reward)
         episode = (state_ls, action_ls, reward_ls)
     return episode
 
@@ -162,7 +166,6 @@ def update_action_value_estimate(agent, episode):
     for _ in range(len(state_ls)):
         # Go backward to update return
         state = state_ls.pop(); action = action_ls.pop(); reward = reward_ls.pop()
-        print(state, action, reward)
         g_return = gamma * g_return + reward
 
         # Map state to state_idx, action to action_idx
@@ -174,17 +177,54 @@ def update_action_value_estimate(agent, episode):
         # Update q(s,a) estimate
         error_signal = g_return - agent.action_value_lookup_table[i][j]
         agent.action_value_lookup_table[i][j] += (1/agent.state_action_count_lookup_table[i][j]) * error_signal
+    return agent.action_value_lookup_table
 
 # init
 env = environment()
 agent = Agent()
 
-print(agent.action_value_lookup_table)
+# for i in range(2):
+#     print(f'iteraion {i}')
+#     episode = generate_episode(env, agent)
+#     print(episode)
+#     agent.action_value_lookup_table = update_action_value_estimate(agent, episode)
+#     print(agent.action_value_lookup_table)
 
+# print(agent.state_count_dict)
 # Monte_carlo
-for _ in range(1000):
+for _ in tqdm(range(500000)):
     episode = generate_episode(env, agent)
-    update_action_value_estimate(agent, episode)
-
+    agent.action_value_lookup_table = update_action_value_estimate(agent, episode)
 print(agent.action_value_lookup_table)
 
+#%%
+# Plot result
+dealer_show_ls = np.array([i for i in range(1,11)])
+agent_sum_ls = np.array([j for j in range(1,22)])
+
+optimal_value_matrix = np.zeros((len(agent_sum_ls), len(dealer_show_ls)))
+
+agent_ls = []; dealer_ls = []; optimal_value_ls = []
+for player_sum in agent_sum_ls:
+    for dealer_show in dealer_show_ls:
+        state = (player_sum, dealer_show)
+        state_idx = agent.state_to_idx[state]
+        optimal_value = max(agent.action_value_lookup_table[state_idx,:])
+        
+        agent_ls.append(player_sum)
+        dealer_ls.append(dealer_show)
+        optimal_value_ls.append(optimal_value)
+
+
+import matplotlib.pyplot as plt
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax.plot_trisurf(agent_ls, dealer_ls, optimal_value_ls, linewidth=0.2, cmap=plt.cm.viridis)
+ax.view_init(20, 210)
+plt.show()
+# %%
+# Policy debug
+test_state = (1, 10)
+action = agent.eps_soft_policy(test_state)
+print(agent.epsilon, action)
+# %%
