@@ -1,19 +1,18 @@
 import numpy as np
-
-class State():
-    def __init__(self) -> None:
-        self.dealer_sum = 0
-        self.agent_sum = 0
-        self.is_terminal  = False
-        pass
     
-class environment(State):
+class environment():
+    class State():
+        def __init__(self) -> None:
+            self.dealer_sum = 0
+            self.agent_sum = 0
+            self.is_terminal  = False
+
     def __init__(self) -> None:
-        super().__init__()
+        self.state = self.State()
         card_value, card_color = self.initial_draw()
-        self.dealer_sum = self.update_sum(card_value, card_color, self.dealer_sum)
+        self.state.dealer_sum = self.update_sum(card_value, card_color, self.state.dealer_sum)
         card_value, card_color = self.initial_draw()
-        self.agent_sum = self.update_sum(card_value, card_color, self.agent_sum)
+        self.state.agent_sum = self.update_sum(card_value, card_color, self.state.agent_sum)
     
     def initial_draw(self):
         card_value = np.random.randint(low=1,high=10)
@@ -49,35 +48,35 @@ class environment(State):
         if state.is_terminal != True:
             if action == 'hit':
                 card_value, card_color = self.draw()
-                self.agent_sum = self.update_sum(card_value, card_color, self.agent_sum)
-                state.agent_sum = self.agent_sum
-                if self.is_bust(self.agent_sum):
+                state.agent_sum = self.update_sum(card_value, card_color, state.agent_sum)
+                if self.is_bust(state.agent_sum):
                     reward = -1
                     state.is_terminal = True
             elif action == 'stick':
-                while self.dealer_sum < 17:
+                while state.dealer_sum < 17:
                     card_value, card_color = self.draw()
-                    self.dealer_sum = self.update_sum(card_value, card_color, self.dealer_sum)
-                    state.dealer_sum = self.dealer_sum
-                    if self.is_bust(self.dealer_sum):
-                        reward = 1
-                        state.is_terminal = True
-                        break
-                if self.dealer_sum > self.agent_sum:
+                    state.dealer_sum = self.update_sum(card_value, card_color, state.dealer_sum)
+
+                if self.is_bust(state.dealer_sum):
+                    reward = 1
+                    state.is_terminal = True
+                elif state.dealer_sum > state.agent_sum:
                     reward = -1
                     state.is_terminal = True
-                elif self.dealer_sum == self.agent_sum:
+                elif state.dealer_sum == state.agent_sum:
                     reward = 0
                     state.is_terminal = True
-                if self.dealer_sum < self.agent_sum:
+                elif state.dealer_sum < state.agent_sum:
                     reward = 1
                     state.is_terminal = True
         return state, reward
+
 # init
 env = environment()
-state = State()
-print(state.agent_sum)
+print(env.state.agent_sum, env.state.dealer_sum, env.state.is_terminal)
+env.state, reward = env.step(env.state, 'stick')
+print(env.state.agent_sum, env.state.dealer_sum, env.state.is_terminal, reward)
 
-for i in range(10):
-    state, reward = env.step(state, 'stick')
+for _ in range(10):
+    state, reward = env.step(state, 'hit')
     print(state.agent_sum, state.dealer_sum, state.is_terminal, reward)
