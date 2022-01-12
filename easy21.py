@@ -187,7 +187,7 @@ def update_action_value_estimate(agent, episode):
         agent.action_value_lookup_table[i][j] += (1/agent.state_action_count_lookup_table[i][j]) * error_signal
     return agent.action_value_lookup_table
 
-def mc_control(num_episode, env, agent):
+def GLIE_mc_control(num_episode=0, env=None, agent=None):
     '''
     GLIE every-vist Monte Carlo Control
     '''
@@ -201,10 +201,8 @@ env = environment()
 agent = Agent()
 
 # Monte_carlo
-for _ in tqdm(range(500000)):
-    policy = agent.eps_soft_policy
-    episode = generate_episode(env, policy)
-    agent.action_value_lookup_table = update_action_value_estimate(agent, episode)
+GLIE_mc_control(num_episode=500000, env=env, agent=agent)
+
 
 #%%
 # Plot value function
