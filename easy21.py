@@ -1,7 +1,10 @@
+# %%
 #%%
 import numpy as np
+import random
 from tqdm import tqdm
 
+# %%
 class environment():
     class State():
         def __init__(self) -> None:
@@ -26,7 +29,7 @@ class environment():
 
     def draw(self, black_only = False):
         card_value = np.random.randint(low=1,high=11)
-        
+
         if black_only == True:
             card_color = 1
             return card_value, card_color
@@ -62,7 +65,7 @@ class environment():
                     reward = -1
                     state.is_terminal = True
             elif action == 'stick':
-                while state.dealer_sum < 17:
+                while state.dealer_sum < 17 and state.dealer_sum >= 1:
                     card_value, card_color = self.draw()
                     state.dealer_sum = self.update_sum(card_value, card_color, state.dealer_sum)
 
@@ -81,6 +84,8 @@ class environment():
         return state, reward
 
 
+
+# %%
 class Agent:
     def __init__(self) -> None:
         self.action = None
@@ -111,7 +116,7 @@ class Agent:
         self.state_action_count_lookup_table = np.zeros((len(self.state_space),len(self.action_space)))
 
     def get_epsilon(self, observe_state):
-        N_0 = 200
+        N_0 = 100
         N_s = self.state_count_dict[observe_state]
         epsilon = N_0 / (N_0 + N_s)
         # Update count
@@ -123,7 +128,6 @@ class Agent:
         i = self.state_to_idx[observe_state]
         # Find the row in Q value table corresponding to state S_t 
         q_s_a = self.action_value_lookup_table[i,:]
-        print('q_value:', q_s_a)
         # Find the greedy idx that gives maximum Q value
         j = np.argmax(q_s_a)
         # Map greedy idx back to greedy action
@@ -142,14 +146,18 @@ class Agent:
         return eps_greedy_action
 
 
-def generate_episode(env, agent):
+# %%
+def generate_episode(env, policy):
+    '''
+    policy is a function object which takes state as input
+    '''
     env.reset()
     state_ls = []; action_ls = []; reward_ls = []
     while env.state.is_terminal != True:
         # observable state
         observe_state = (env.state.agent_sum, env.state.dealer_first_card_value)
         # Follow policy pi
-        action = agent.eps_soft_policy(observe_state)
+        action = policy(observe_state)
     
         state_ls.append(observe_state)
         action_ls.append(action)
@@ -179,52 +187,87 @@ def update_action_value_estimate(agent, episode):
         agent.action_value_lookup_table[i][j] += (1/agent.state_action_count_lookup_table[i][j]) * error_signal
     return agent.action_value_lookup_table
 
+def mc_control(num_episode, env, agent):
+    '''
+    GLIE every-vist Monte Carlo Control
+    '''
+    for _ in tqdm(range(num_episode)):
+        policy = agent.eps_soft_policy
+        episode = generate_episode(env, policy)
+        agent.action_value_lookup_table = update_action_value_estimate(agent, episode)
+# %%
 # init
 env = environment()
 agent = Agent()
 
-# for i in range(2):
-#     print(f'iteraion {i}')
-#     episode = generate_episode(env, agent)
-#     print(episode)
-#     agent.action_value_lookup_table = update_action_value_estimate(agent, episode)
-#     print(agent.action_value_lookup_table)
-
-# print(agent.state_count_dict)
 # Monte_carlo
 for _ in tqdm(range(500000)):
-    episode = generate_episode(env, agent)
+    policy = agent.eps_soft_policy
+    episode = generate_episode(env, policy)
     agent.action_value_lookup_table = update_action_value_estimate(agent, episode)
-print(agent.action_value_lookup_table)
 
 #%%
-# Plot result
+# Plot value function
 dealer_show_ls = np.array([i for i in range(1,11)])
 agent_sum_ls = np.array([j for j in range(1,22)])
 
+optimal_action_matrix = np.zeros((len(agent_sum_ls), len(dealer_show_ls)))
 optimal_value_matrix = np.zeros((len(agent_sum_ls), len(dealer_show_ls)))
 
-agent_ls = []; dealer_ls = []; optimal_value_ls = []
+agent_ls = []; dealer_ls = []; optimal_value_ls = []; optimal_action_ls = []
 for player_sum in agent_sum_ls:
     for dealer_show in dealer_show_ls:
         state = (player_sum, dealer_show)
         state_idx = agent.state_to_idx[state]
         optimal_value = max(agent.action_value_lookup_table[state_idx,:])
-        
+        optimal_action = np.argmax(agent.action_value_lookup_table[state_idx,:])
+
         agent_ls.append(player_sum)
         dealer_ls.append(dealer_show)
         optimal_value_ls.append(optimal_value)
-
-
+        optimal_action_ls.append(optimal_action)
+        optimal_action_matrix[player_sum-1][dealer_show-1] = optimal_action
+        optimal_value_matrix[player_sum-1][dealer_show-1] = optimal_value
+        
 import matplotlib.pyplot as plt
+
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 ax.plot_trisurf(agent_ls, dealer_ls, optimal_value_ls, linewidth=0.2, cmap=plt.cm.viridis)
 ax.view_init(20, 210)
-plt.show()
+plt.draw()
+
 # %%
 # Policy debug
-test_state = (1, 10)
+test_state = (3, 10)
 action = agent.eps_soft_policy(test_state)
 print(agent.epsilon, action)
+
+
 # %%
+test = agent.action_value_lookup_table
+print(agent.state_to_idx[test_state])
+
+# %%
+import matplotlib.pyplot as plt
+from matplotlib import colors
+import numpy as np
+
+data = np.random.rand(10, 10) * 20
+
+# create discrete colormap
+cmap = colors.ListedColormap(['red', 'blue'])
+bounds = [0,0.5,1]
+norm = colors.BoundaryNorm(bounds, cmap.N)
+
+fig, ax = plt.subplots()
+ax.imshow(optimal_action_matrix, cmap=cmap, norm=norm)
+
+# draw gridlines
+ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
+ax.set_xticks(np.arange(1, 10, 1))
+ax.set_yticks(np.arange(1, 21, 1))
+#ax.legend(['hit', 'stick'])
+plt.show()
+
+
