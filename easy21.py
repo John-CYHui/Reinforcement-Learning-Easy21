@@ -3,7 +3,7 @@ from tqdm import tqdm
 import pickle as pk
 from classes import *
 
-def generate_episode(env, policy, Q_table, Count_table):
+def generate_episode(env, policy, control_method):
     '''
     policy is a function object which takes state as input
     '''
@@ -12,8 +12,9 @@ def generate_episode(env, policy, Q_table, Count_table):
     while env.state.is_terminal != True:
         # observable state
         observe_state = (env.state.agent_sum, env.state.dealer_first_card_value)
-        # Follow policy pi
-        action = policy(observe_state, Q_table, Count_table)
+        if control_method == 'GLIE Monte Carlo Control':
+            # Follow GLIE monte carlo control
+            action = policy(observe_state, Q_table, Count_table)
         
         state_ls.append(observe_state)
         action_ls.append(action)
@@ -46,13 +47,15 @@ def GLIE_mc_control(num_episode=0, env=None, agent=None):
     '''
     GLIE every-vist Monte Carlo Control
     '''
+    global Q_table; global Count_table
     Q_table = lookup_tabular(env.state_space, env.action_space)
     Count_table = lookup_tabular(env.state_space, env.action_space)
-    
-    for _ in tqdm(range(num_episode), desc='Monte Carlo Control'):
+    control_method = 'GLIE Monte Carlo Control'
+
+    for _ in tqdm(range(num_episode), desc=control_method):
         # On-policy
         policy = agent.policy
-        episode = generate_episode(env, policy, Q_table, Count_table)
+        episode = generate_episode(env, policy, control_method)
         Q_table = update_action_value_estimate(episode, Q_table, Count_table)
     
     return Q_table
