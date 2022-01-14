@@ -37,12 +37,12 @@ def plot_value_function(value_space):
     ax = plt.axes(projection ='3d') 
     cmap = plt.get_cmap('hot')
     trisurf = ax.plot_trisurf(agent_ls, dealer_ls, optimal_value_ls, linewidth=0.2, cmap=cmap)
+    ax.invert_yaxis()
     fig.colorbar(trisurf, ax = ax, shrink = 0.5, aspect = 10)
-    ax.view_init(20, 210)
+    ax.view_init(25, 25)
     ax.set_xlabel('player sum',fontweight ='bold')
     ax.set_ylabel('dealer face card',fontweight ='bold')
     ax.set_zlabel('value',fontweight ='bold')
-    ax.set_xlim(1,21)
     ax.set_xticks(np.arange(1,22,2))
     ax.set_title('Optimal Value Function V*(s) ')
     plt.draw()
@@ -78,7 +78,7 @@ def plot_policy_map(optimal_action_matrix):
     ax.set_xlabel('dealer face card',fontweight ='bold')
     ax.set_ylabel('player sum',fontweight ='bold')
     ax.text(10,10, 'red = hit\nblue = stick')
-    #fig.legend(['hit', 'stick'])
+    ax.set_title('Optimum Policy')
     plt.show()
 
 
