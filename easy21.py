@@ -2,6 +2,7 @@ import numpy as np
 from tqdm import tqdm
 import pickle as pk
 from classes import *
+from config import *
 
 def generate_episode(env, policy, control_method, Q_table = None, Count_table = None):
     '''
@@ -64,7 +65,7 @@ env = easy21()
 agent = eps_soft_agent()
 
 # Monte_carlo
-Q_table = GLIE_mc_control(num_episode=1000000, env=env, agent=agent)
+Q_table = GLIE_mc_control(num_episode=EPISODE, env=env, agent=agent)
 
 with open('Q_table.pk', 'wb') as f:
     pk.dump(Q_table, f)

@@ -5,7 +5,7 @@ from matplotlib.ticker import AutoMinorLocator
 import pickle as pk
 import numpy as np
 from classes import *
-
+from config import *
 
 def find_optimal_value_action(Q_table):
     dealer_show_ls = np.array([i for i in range(1,11)])
@@ -44,7 +44,7 @@ def plot_value_function(value_space):
     ax.set_ylabel('dealer face card',fontweight ='bold')
     ax.set_zlabel('value',fontweight ='bold')
     ax.set_xticks(np.arange(1,22,2))
-    ax.set_title('Optimal Value Function V*(s) ')
+    ax.set_title(f'Optimal Value Function V*(s) for episode {EPISODE}')
     plt.draw()
 
 def plot_policy_map(optimal_action_matrix):
@@ -78,7 +78,7 @@ def plot_policy_map(optimal_action_matrix):
     ax.set_xlabel('dealer face card',fontweight ='bold')
     ax.set_ylabel('player sum',fontweight ='bold')
     ax.text(10,10, 'red = hit\nblue = stick')
-    ax.set_title('Optimum Policy')
+    ax.set_title(f'Optimum Policy for episode {EPISODE}')
     plt.show()
 
 
