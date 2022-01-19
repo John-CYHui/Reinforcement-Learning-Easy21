@@ -14,7 +14,7 @@ The purpose is to find the optimal policy using various RL algorithms for this g
 
 * [Setup](#setup)
 * [Todos](#todos)
-    * [Tablur Sarsa(λ)](#tab-sarsa)
+    * [Tabluar Sarsa(λ)](#tab-sarsa)
     * [Function approximation Sarsa(λ)](#func-sarsa)
 
 
@@ -57,13 +57,17 @@ This version is more practical than the algorithm mentioned in Sutto and Barto p
 
 In short, this implementation should be called `On-policy every-visit GLIE MC control (for epsilon greedy policy)` <br/>
 
+* Results - On-policy every-visit GLIE MC control
+<p>
+<img src="data/readme_pics/v_episode_10000" />
+</p>
 ---
 ## Setup
 1. Run easy21.py to perform RL
 2. run plot.py to plot results
 ---
 ## Todos
-## Tablur Sarsa(λ)
+## Tabluar Sarsa(λ)
 To do.
 ## Function approximation Sarsa(λ)
 To do.
