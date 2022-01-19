@@ -59,7 +59,9 @@ In short, this implementation should be called `On-policy every-visit GLIE MC co
 
 * Results - On-policy every-visit GLIE MC control
 <p>
-<img src="data/readme_pics/v_episode_10000" />
+<img src="data/readme_pics/v_episode_10000.png" width="400"/> <img src="data/readme_pics/policy_episode_10000.png" width="400"/>
+<img src="data/readme_pics/v_episode_500000.png" width="400"/> <img src="data/readme_pics/policy_episode_500000.png" width="400"/>
+<img src="data/readme_pics/v_episode_100000.png" width="400"/> <img src="data/readme_pics/policy_episode_100000.png" width="400"/>
 </p>
 ---
 ## Setup
