@@ -14,8 +14,8 @@ The purpose is to find the optimal policy using various RL algorithms for this g
 
 * [Setup](#setup)
 * [Todos](#todos)
-    * [Tabluar Sarsa(λ)](#tabluar-sarsa(λ))
-    * [Function approximation Sarsa(λ)](#function-approximation-sarsa(λ))
+    * [Tabluar Sarsa(λ)](#tabluar-sarsa)
+    * [Function approximation Sarsa(λ)](#function-approximation-sarsa)
 
 
 ## Rules
@@ -70,7 +70,7 @@ In short, this implementation should be called `On-policy every-visit GLIE MC co
 2. run plot.py to plot results
 ---
 ## Todos
-### Tabluar Sarsa(λ)
+### Tabluar Sarsa
 To do.
-### Function approximation Sarsa(λ)
+### Function approximation Sarsa
 To do.
