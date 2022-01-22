@@ -1,4 +1,4 @@
-## Reinforcement Learning - Easy21
+# Reinforcement Learning - Easy21
 
 This repo contains python implementation to the card game problem from Dr. David Silver`s assignment called "Easy21". <br/>
 (:link: [Assignment Link](https://www.davidsilver.uk/wp-content/uploads/2020/03/Easy21-Johannes.pdf)) <br/>
@@ -50,7 +50,7 @@ bust, then the player wins; otherwise, the outcome – win (reward +1),
 lose (reward -1), or draw (reward 0) – is the player with the largest sum. <br/>
 
 ## RL algorithms
-# Tabluar Monte Carlo Control
+### Tab Mc Control
 The implementation follows Dr. Silver`s note on Lecture 5 page 16. (:link: [GLIE Monte Carlo Control](https://www.davidsilver.uk/wp-content/uploads/2020/03/control.pdf)) <br/>
 
 This version is more practical than the algorithm mentioned in Sutto and Barto page 101 in a sense that it introduces epsilon scheduling. Thus given sufficient time steps, epsilon will reaches 0 and eilson greedy policy will be optimal policy. <br/>
@@ -70,7 +70,7 @@ In short, this implementation should be called `On-policy every-visit GLIE MC co
 2. run plot.py to plot results
 ---
 ## Todos
-# Tabluar Sarsa(λ)
+### Tabluar Sarsa(λ)
 To do.
-# Function approximation Sarsa(λ)
+### Function approximation Sarsa(λ)
 To do.
