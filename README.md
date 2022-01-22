@@ -10,12 +10,12 @@ The purpose is to find the optimal policy using various RL algorithms for this g
 ## Table of Contents
 * [Rules](#rules)
 * [RL algorithms](#rl-algorithms)
-    * [Tabluar Monte Carlo Control](#tab-mc-control)
+    * [Tabluar Monte Carlo Control](#tabluar-monte-carlo-control)
 
 * [Setup](#setup)
 * [Todos](#todos)
-    * [Tabluar Sarsa(λ)](#tab-sarsa)
-    * [Function approximation Sarsa(λ)](#func-sarsa)
+    * [Tabluar Sarsa(λ)](#tabluar-sarsa(λ))
+    * [Function approximation Sarsa(λ)](#function-approximation-sarsa(λ))
 
 
 ## Rules
@@ -50,7 +50,7 @@ bust, then the player wins; otherwise, the outcome – win (reward +1),
 lose (reward -1), or draw (reward 0) – is the player with the largest sum. <br/>
 
 ## RL algorithms
-### Tab Mc Control
+### Tabluar Monte Carlo Control
 The implementation follows Dr. Silver`s note on Lecture 5 page 16. (:link: [GLIE Monte Carlo Control](https://www.davidsilver.uk/wp-content/uploads/2020/03/control.pdf)) <br/>
 
 This version is more practical than the algorithm mentioned in Sutto and Barto page 101 in a sense that it introduces epsilon scheduling. Thus given sufficient time steps, epsilon will reaches 0 and eilson greedy policy will be optimal policy. <br/>
